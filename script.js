@@ -55,7 +55,6 @@ function render() {
         player2Container.classList.add('active');
     }
     
-    // SVGs für Spieler 1 und 2 aktualisieren
     const player1SVG = generateCircleSVG();
     const player2SVG = generateCrossSVG();
     player1Container.innerHTML = player1SVG;
@@ -65,7 +64,7 @@ function render() {
 
 function handleClick(index) {
   if (fields[index] === null && !isGameFinished()) {
-      renderPlayers(); // Hier die renderPlayers() Funktion aufrufen
+      renderPlayers(); 
       fields[index] = currentPlayer;
       render();
 
@@ -75,7 +74,6 @@ function handleClick(index) {
       } else {
           currentPlayer = currentPlayer === 'circle' ? 'cross' : 'circle';
           if (currentPlayer === 'cross') {
-              // AI-Zug hier
               makeAiMove();
           }
       }
@@ -92,6 +90,7 @@ function makeAiMove() {
     }
   }
 }
+
 
 function findBestMove(board, player) {
   if (isGameFinished(board)) {
@@ -140,6 +139,7 @@ function findBestMove(board, player) {
   return bestMove;
 }
 
+
 function evaluate(board) {
   if (isWinning(board, 'cross')) {
     return { score: 1 };
@@ -150,6 +150,7 @@ function evaluate(board) {
   }
 }
 
+
 function isWinning(board, player) {
   for (const combination of WINNING_COMBINATIONS) {
     const [a, b, c] = combination;
@@ -159,6 +160,7 @@ function isWinning(board, player) {
   }
   return false;
 }
+
 
 function getEmptyCells(board) {
   const emptyCells = [];

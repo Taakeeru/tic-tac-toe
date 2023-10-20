@@ -43,14 +43,14 @@ h2 {
     display: flex;
     align-items: center;
     justify-content: center;
-    width: 70px; /* Passen Sie die Größe nach Bedarf an */
+    width: 70px; 
     height: 70px;
-    background-color: transparent; /* Transparenter Hintergrund */
-    margin-top: 50px; /* Passen Sie den Abstand zum Spielfeld an */
+    background-color: transparent; 
+    margin-top: 50px; 
   }
   
   .player.active {
-    border: 2px solid #ffffff; /* Rand für den aktiven Spieler */
+    border: 2px solid #ffffff; 
   }
 
 #content {
