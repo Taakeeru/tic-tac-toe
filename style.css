@@ -18,6 +18,7 @@ body {
 h1 {
     font-size: 50px;
     text-align: center;
+    margin-top: 15px;
     margin-bottom: 15px;
 }
 
@@ -29,11 +30,35 @@ h2 {
     color: rgba(168, 167, 167, 0.623);
 }
 
+.player-div {
+    display: flex;
+    justify-content: center;
+}
+
+.mg-l-50 {
+    margin-left: 50px;
+}
+
+.player {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 70px; /* Passen Sie die Größe nach Bedarf an */
+    height: 70px;
+    background-color: transparent; /* Transparenter Hintergrund */
+    margin-top: 50px; /* Passen Sie den Abstand zum Spielfeld an */
+  }
+  
+  .player.active {
+    border: 2px solid #ffffff; /* Rand für den aktiven Spieler */
+  }
+
 #content {
     display: flex;
     justify-content: center;
     align-items: center;
-    margin: 200px 0px 200px 0px;
+    margin-top: 100px;
+    margin-bottom: 100px;
     position: relative;
 }
 

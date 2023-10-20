@@ -47,6 +47,23 @@ function render() {
 
     // Set table HTML to contentDiv
     contentDiv.innerHTML = tableHtml;
+
+    const player1Container = document.getElementById('player1');
+    const player2Container = document.getElementById('player2');
+
+    if (currentPlayer === 'circle') {
+        player1Container.classList.add('active');
+        player2Container.classList.remove('active');
+    } else {
+        player1Container.classList.remove('active');
+        player2Container.classList.add('active');
+    }
+    
+    // SVGs für Spieler 1 und 2 aktualisieren
+    const player1SVG = generateCircleSVG();
+    const player2SVG = generateCrossSVG();
+    player1Container.innerHTML = player1SVG;
+    player2Container.innerHTML = player2SVG;
 }
 
 
@@ -67,16 +84,34 @@ function restartGame(){
 
 
 function handleClick(cell, index) {
-  if (fields[index] === null) {
-      fields[index] = currentPlayer;
-      cell.innerHTML = currentPlayer === 'circle' ? generateCircleSVG() : generateCrossSVG();
-      cell.onclick = null;
-      currentPlayer = currentPlayer === 'circle' ? 'cross' : 'circle';
+  if (isGameFinished() || fields[index] !== null) {
+      return; // Das Spiel ist beendet oder das Feld ist bereits belegt
+  }
 
-      if (isGameFinished()) {
-          const winCombination = getWinningCombination();
-          drawWinningLine(winCombination);
-      }
+  fields[index] = currentPlayer;
+  cell.innerHTML = currentPlayer === 'circle' ? generateCircleSVG() : generateCrossSVG();
+  cell.onclick = null;
+  currentPlayer = currentPlayer === 'circle' ? 'cross' : 'circle';
+
+  renderPlayers(); // Aktualisieren Sie die Spieleranzeige
+
+  if (isGameFinished()) {
+      const winCombination = getWinningCombination();
+      drawWinningLine(winCombination);
+  }
+}
+
+
+function renderPlayers() {
+  const player1Container = document.getElementById('player1');
+  const player2Container = document.getElementById('player2');
+
+  if (currentPlayer === 'circle') {
+      player1Container.classList.add('active');
+      player2Container.classList.remove('active');
+  } else {
+      player1Container.classList.remove('active');
+      player2Container.classList.add('active');
   }
 }
 
