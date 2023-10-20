@@ -1,54 +1,50 @@
 let fields = [
-    null,   //0
-    null,   //1
-    null,   //2
-    null,   //3
-    null,   //4
-    null,   //5
-    null,   //6
-    null,   //7
-    null    //8
+  null,   //0
+  null,   //1
+  null,   //2
+  null,   //3
+  null,   //4
+  null,   //5
+  null,   //6
+  null,   //7
+  null    //8
 ];
 
 let currentPlayer = 'circle';
 
 const WINNING_COMBINATIONS = [
-  [0, 1, 2], [3, 4, 5], [6, 7, 8], // horizontal
-  [0, 3, 6], [1, 4, 7], [2, 5, 8], // vertical
-  [0, 4, 8], [2, 4, 6], // diagonal
+[0, 1, 2], [3, 4, 5], [6, 7, 8], // horizontal
+[0, 3, 6], [1, 4, 7], [2, 5, 8], // vertical
+[0, 4, 8], [2, 4, 6] // diagonal
 ];
 
-
-
 function init() {
-    render();
+  render();
 }
 
-
 function render() {
-    const contentDiv = document.getElementById('content');
+  const contentDiv = document.getElementById('content');
 
-    let tableHtml = '<table>';
-    for (let i = 0; i < 3; i++) {
-        tableHtml += '<tr>';
-        for (let j = 0; j < 3; j++) {
-            const index = i * 3 + j;
-            let symbol = '';
-            if (fields[index] === 'circle') {
-                symbol = generateCircleSVG();
-            } else if (fields[index] === 'cross') {
-                symbol = generateCrossSVG();
-            }
-            tableHtml += `<td onclick="handleClick(this, ${index})">${symbol}</td>`;
-        }
-        tableHtml += '</tr>';
-    }
-    tableHtml += '</table>';
+  let tableHtml = '<table>';
+  for (let i = 0; i < 3; i++) {
+      tableHtml += '<tr>';
+      for (let j = 0; j < 3; j++) {
+          const index = i * 3 + j;
+          let symbol = '';
+          if (fields[index] === 'circle') {
+              symbol = generateCircleSVG();
+          } else if (fields[index] === 'cross') {
+              symbol = generateCrossSVG();
+          }
+          tableHtml += `<td onclick="handleClick(${index})">${symbol}</td>`;
+      }
+      tableHtml += '</tr>';
+  }
+  tableHtml += '</table>';
 
-    // Set table HTML to contentDiv
-    contentDiv.innerHTML = tableHtml;
-
-    const player1Container = document.getElementById('player1');
+  contentDiv.innerHTML = tableHtml;
+  
+  const player1Container = document.getElementById('player1');
     const player2Container = document.getElementById('player2');
 
     if (currentPlayer === 'circle') {
@@ -67,38 +63,111 @@ function render() {
 }
 
 
-function restartGame(){
-  fields = [
-      null,
-      null,
-      null,
-      null,
-      null,
-      null,
-      null,
-      null,
-      null,
-  ];
-  render();
+function handleClick(index) {
+  if (fields[index] === null && !isGameFinished()) {
+      renderPlayers(); // Hier die renderPlayers() Funktion aufrufen
+      fields[index] = currentPlayer;
+      render();
+
+      if (isGameFinished()) {
+          const winCombination = getWinningCombination();
+          drawWinningLine(winCombination);
+      } else {
+          currentPlayer = currentPlayer === 'circle' ? 'cross' : 'circle';
+          if (currentPlayer === 'cross') {
+              // AI-Zug hier
+              makeAiMove();
+          }
+      }
+  }
 }
 
 
-function handleClick(cell, index) {
-  if (isGameFinished() || fields[index] !== null) {
-      return; // Das Spiel ist beendet oder das Feld ist bereits belegt
+function makeAiMove() {
+  if (!isGameFinished()) {
+    const bestMove = findBestMove(fields, 'cross');
+    if (bestMove !== null) {
+      const index = bestMove.index;
+      handleClick(index);
+    }
+  }
+}
+
+function findBestMove(board, player) {
+  if (isGameFinished(board)) {
+    return evaluate(board);
   }
 
-  fields[index] = currentPlayer;
-  cell.innerHTML = currentPlayer === 'circle' ? generateCircleSVG() : generateCrossSVG();
-  cell.onclick = null;
-  currentPlayer = currentPlayer === 'circle' ? 'cross' : 'circle';
+  const moves = [];
+  const emptyCells = getEmptyCells(board);
 
-  renderPlayers(); // Aktualisieren Sie die Spieleranzeige
+  for (const index of emptyCells) {
+    const move = {};
+    move.index = index;
+    board[index] = player;
 
-  if (isGameFinished()) {
-      const winCombination = getWinningCombination();
-      drawWinningLine(winCombination);
+    if (player === 'cross') {
+      const result = findBestMove(board, 'cross');
+      move.score = result.score;
+    } else {
+      const result = findBestMove(board, 'circle');
+      move.score = result.score;
+    }
+
+    board[index] = null;
+    moves.push(move);
   }
+
+  let bestMove = null;
+  if (player === 'cross') {
+    let bestScore = -Infinity;
+    for (const move of moves) {
+      if (move.score > bestScore) {
+        bestScore = move.score;
+        bestMove = move;
+      }
+    }
+  } else {
+    let bestScore = Infinity;
+    for (const move of moves) {
+      if (move.score < bestScore) {
+        bestScore = move.score;
+        bestMove = move;
+      }
+    }
+  }
+
+  return bestMove;
+}
+
+function evaluate(board) {
+  if (isWinning(board, 'cross')) {
+    return { score: 1 };
+  } else if (isWinning(board, 'circle')) {
+    return { score: -1 };
+  } else {
+    return { score: 0 };
+  }
+}
+
+function isWinning(board, player) {
+  for (const combination of WINNING_COMBINATIONS) {
+    const [a, b, c] = combination;
+    if (board[a] === player && board[b] === player && board[c] === player) {
+      return true;
+    }
+  }
+  return false;
+}
+
+function getEmptyCells(board) {
+  const emptyCells = [];
+  for (let i = 0; i < board.length; i++) {
+    if (board[i] === null) {
+      emptyCells.push(i);
+    }
+  }
+  return emptyCells;
 }
 
 
@@ -118,6 +187,22 @@ function renderPlayers() {
 
 function isGameFinished() {
   return fields.every((field) => field !== null) || getWinningCombination() !== null;
+}
+
+
+function restartGame(){
+  fields = [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+  ];
+  render();
 }
 
 
